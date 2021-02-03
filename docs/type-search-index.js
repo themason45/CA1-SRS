@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes","u":"allclasses-index.html"},{"p":"models","l":"BaseModel"},{"p":"models","l":"Module"},{"p":"models","l":"ModuleDescriptor"},{"p":"models","l":"Student"},{"p":"models","l":"StudentRecord"},{"p":"<Unnamed>","l":"StudentRecordSystem"},{"p":"models","l":"University"}];updateSearchResults();
