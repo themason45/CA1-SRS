@@ -6,6 +6,8 @@ import com.j256.ormlite.table.DatabaseTable;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @DatabaseTable(tableName = "student_record")
 public class StudentRecord extends BaseModel {
@@ -25,11 +27,11 @@ public class StudentRecord extends BaseModel {
      */
     public void calculateFinalScore() throws SQLException {
         ArrayList<Double> weightedMarks = new ArrayList<>();
-        ArrayList<Double> weights = this.getModule().getDescriptor().getContinuousAssignmentWeights();
+        Double[] weights = this.getModule().getDescriptor().getContinuousAssignmentWeights();
 
         // For each mark we want to retrieve the corresponding weighting from the module descriptor
         for (int i=0; i < this.marks.size(); i++) {
-            Double weighting = weights.get(i);
+            Double weighting = weights[i];
             weightedMarks.add(weighting * this.marks.get(i));
         }
 
@@ -37,7 +39,7 @@ public class StudentRecord extends BaseModel {
         double markSum = weightedMarks.stream().reduce(0.0, Double::sum);
 
         // Then divide by the sum of the weightings
-        double smallAvg = markSum / weights.stream().reduce(0.0, Double::sum);
+        double smallAvg = markSum / Arrays.stream(weights).reduce(0.0, Double::sum);
         this.finalScore = (smallAvg * 10);
     }
 
@@ -94,4 +96,27 @@ public class StudentRecord extends BaseModel {
         return (this.finalScore > this.getModule().getFinalAverageGrade());
     }
 
+    public Student getStudent() {
+        return student;
+    }
+
+    public void setStudent(Student student) {
+        this.student = student;
+    }
+
+    public void setModule(Module module) {
+        this.module = module;
+    }
+
+    public ArrayList<Double> getMarks() {
+        return marks;
+    }
+
+    public void setMarks(Double[] marks) {
+        this.marks = (ArrayList<Double>) Arrays.asList(marks);
+    }
+
+    public void setFinalScore(double finalScore) {
+        this.finalScore = finalScore;
+    }
 }

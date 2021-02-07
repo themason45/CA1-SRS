@@ -77,18 +77,20 @@ public class University extends BaseModel {
         // StudentRecordSystem.createTables(connectionSource);  Only used once, to create all the tables.
 
         Dao<University, String> universityDao = DaoManager.createDao(connectionSource, University.class);
-
         University baseUni = universityDao.queryForId("1");
 
-        System.out.println();
-        baseUni.getStudents().forEach(student -> {
-            try {
-                System.out.print(student.printTranscript());
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
-        });
+        // Do all the printing malarkey
+        System.out.printf("The UoK has %d students.\n", baseUni.getTotalNumberStudents());
+        System.out.printf("The best module is: \n%s\n", baseUni.getBestModule().getDescriptor().getName());
+        System.out.printf("The best student is: \n%s", baseUni.getBestStudent().printTranscript());
 
+//        baseUni.getStudents().forEach(student -> {
+//            try {
+//                System.out.print(student.printTranscript());
+//            } catch (SQLException throwables) {
+//                throwables.printStackTrace();
+//            }
+//        });
         connectionSource.closeQuietly();
     }
 

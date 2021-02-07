@@ -113,4 +113,44 @@ public class Student extends BaseModel{
 	    this.calculateGpa();
         return gpa;
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public char getGender() {
+        return gender;
+    }
+
+    public void setGender(char gender) {
+        this.gender = gender;
+    }
+
+    public void setGpa(double gpa) {
+        this.gpa = gpa;
+    }
+
+    public ForeignCollection<StudentRecord> getRecordsReferences() {
+        return records;
+    }
+
+    public StudentRecord[] getRecords() {
+        return (StudentRecord[]) this.records.toArray();
+    }
+
+    public void setRecordsReference(ForeignCollection<StudentRecord> records) {
+        this.records = records;
+    }
+
+    public University getUniversity() {
+        return university;
+    }
+
+    public void setUniversity(University university) {
+        this.university = university;
+    }
 }
