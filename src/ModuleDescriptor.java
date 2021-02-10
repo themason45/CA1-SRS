@@ -10,7 +10,7 @@ public class ModuleDescriptor extends BaseModel {
 	private String code;
 	@DatabaseField()
 	private String name;
-	@DatabaseField(dataType = DataType.SERIALIZABLE)
+	@DatabaseField(dataType = DataType.SERIALIZABLE, columnName = "continuousassignmentweights")
 	private ArrayList<Double> continuousAssignmentWeights;
 	@DatabaseField(foreign = true)
 	private University university;

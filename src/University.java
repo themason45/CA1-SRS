@@ -8,16 +8,20 @@ import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.DatabaseTable;
 import com.j256.ormlite.table.TableUtils;
 
+import java.io.File;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @DatabaseTable(tableName = "university")
 public class University extends BaseModel {
-    @ForeignCollectionField(eager = true, maxEagerLevel = 2)
+    @ForeignCollectionField(eager = false, maxEagerLevel = 1)
     private ForeignCollection<ModuleDescriptor> moduleDescriptors;
-    @ForeignCollectionField(eager = true, maxEagerLevel = 2)
+    @ForeignCollectionField(eager = false, maxEagerLevel = 1)
     private ForeignCollection<Student> students;
-    @ForeignCollectionField(eager = true, maxEagerLevel = 2)
+    @ForeignCollectionField(eager = false, maxEagerLevel = 1)
     private ForeignCollection<Module> modules;
 
     public University() {
@@ -47,10 +51,13 @@ public class University extends BaseModel {
     /**
      * @return The student with the highest GPA.
      */
-    @SuppressWarnings("unused")
     public Student getBestStudent() {
+//        for (Student student : students) {
+//            System.out.println(student.getName());
+//        }
         Optional<Student> bestStudent = this.students.stream().max((o1, o2) -> {
             try {
+
                 return (o1.getGpa() > o2.getGpa()) ? 1 : 0;
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
@@ -71,8 +78,12 @@ public class University extends BaseModel {
 
     public static void main(String[] args) throws SQLException {
         System.setProperty(LocalLog.LOCAL_LOG_LEVEL_PROPERTY, "ERROR");
-        ConnectionSource connectionSource = new JdbcConnectionSource("jdbc:sqlite:db.sqlite");
-        // StudentRecordSystem.createTables(connectionSource);  Only used once, to create all the tables.
+
+//        ConnectionSource connectionSource = new JdbcConnectionSource("jdbc:postgresql://rogue.db.elephantsql.com:5432/gtlwzejo?user=gtlwzejo&password=eXQXX50vi9wEh7EtmdD1WeFu6nhBBfQw");
+        final File f = new File(University.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+        String dbPath = String.format("jdbc:sqlite:%s/db.sqlite", f.getAbsolutePath());
+        ConnectionSource connectionSource = new JdbcConnectionSource(dbPath);
+        // University.createTables(connectionSource); // Only used once, to create all the tables.
 
         Dao<University, String> universityDao = DaoManager.createDao(connectionSource, University.class);
         University baseUni = universityDao.queryForId("1");

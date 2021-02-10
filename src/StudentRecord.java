@@ -14,7 +14,7 @@ public class StudentRecord extends BaseModel {
     private Module module;
     @DatabaseField(dataType = DataType.SERIALIZABLE)
     private ArrayList<Double> marks;
-    @DatabaseField()
+    @DatabaseField(columnName = "finalscore")
     private double finalScore;
 
     public StudentRecord() {}
