@@ -28,4 +28,5 @@ The spec dictates that the path `ecm1410/your student number/ca1/src/` should co
 For that, again from the root directory, use the following commands:
 
 Build: `javac -classpath ormlite-core-5.3.jar:sqlite-jdbc-3.32.3.2.jar:ormlite-jdbc-5.3.jar src/*`
+
 Run: `java -classpath src:ormlite-core-5.3.jar:sqlite-jdbc-3.32.3.2.jar:ormlite-jdbc-5.3.jar University`
