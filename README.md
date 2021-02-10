@@ -4,9 +4,9 @@
 
 This project uses an SQLite database to store all of the data, just because I wanted a challenge, so for that, there are a couple of libraries.
 These are:
-  - [https://ormlite.com](ORMLite)
-  - [https://docs.oracle.com/javase/8/docs/technotes/guides/jdbc/](JDBC)
-  - [https://github.com/xerial/sqlite-jdbc](JDBC SQLite driveer)
+  - [ORMLite](https://ormlite.com)
+  - [JDBC](https://docs.oracle.com/javase/8/docs/technotes/guides/jdbc/)
+  - [JDBC SQLite driver](https://github.com/xerial/sqlite-jdbc)
 
 Of course normally it would be foolish to store the database file in the Git Repo, howver, since this data is not very sensitive, we can get away with it.
 Please assert that the file: `db.sqlite` is present in the root directory of the project, I.E: the one above the `src` directory.
