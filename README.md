@@ -15,7 +15,7 @@ Please assert that the file: `db.sqlite` is present in the root directory of the
 
 To build, from the root directory, run:
 
-`javac -classpath ormlite-core-5.3.jar:sqlite-jdbc-3.32.3.2.jar:ormlite-jdbc-5.3.jar src/models/*`
+`javac -classpath ormlite-core-5.3.jar:sqlite-jdbc-3.32.3.2.jar:ormlite-jdbc-5.3.jar src/models/*.java`
 
 To run, from the root directory, use:
 
