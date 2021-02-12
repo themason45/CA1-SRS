@@ -1,33 +1,29 @@
-import com.j256.ormlite.field.DataType;
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-@DatabaseTable(tableName = "student_record")
 public class StudentRecord extends BaseModel {
-    @DatabaseField(foreign = true)
     private Student student;
-    @DatabaseField(foreign = true)
     private Module module;
-    @DatabaseField(dataType = DataType.SERIALIZABLE)
     private ArrayList<Double> marks;
-    @DatabaseField(columnName = "finalscore")
     private double finalScore;
 
-    public StudentRecord() {}
+    public StudentRecord(int pk, Student student, Module module, ArrayList<Double> marks, double finalScore) {
+        this.pk = pk;
+        this.student = student;
+        this.module = module;
+        this.marks = marks;
+        this.finalScore = finalScore;
+    }
 
     /**
-     * @throws SQLException : All DB queries have a risk of this occurring
      */
-    public void calculateFinalScore() throws SQLException {
+    public void calculateFinalScore() {
         ArrayList<Double> weightedMarks = new ArrayList<>();
         Double[] weights = this.getModule().getDescriptor().getContinuousAssignmentWeights();
 
         // For each mark we want to retrieve the corresponding weighting from the module descriptor
-        for (int i=0; i < this.marks.size(); i++) {
+        for (int i = 0; i < this.marks.size(); i++) {
             Double weighting = weights[i];
             weightedMarks.add(weighting * this.marks.get(i));
         }
@@ -44,16 +40,16 @@ public class StudentRecord extends BaseModel {
      * @return A Module object with all necessary fields filled out
      * @throws SQLException : All DB queries have a risk of this occurring
      */
-    public Module getModule() throws SQLException {
-        return (Module) this.module.getDao().queryForId(String.valueOf(this.module.pk));
+    public Module getModule() {
+        return this.module;
     }
 
     /**
      * Calculates the final score, and returns it
+     *
      * @return The final score
-     * @throws SQLException : All DB queries have a risk of this occurring
      */
-    public double getFinalScore() throws SQLException {
+    public double getFinalScore() {
         this.calculateFinalScore();
         return finalScore;
     }
@@ -62,16 +58,15 @@ public class StudentRecord extends BaseModel {
      * @return The year attribute of the module for this record
      * @throws SQLException : All DB queries have a risk of this occurring
      */
-    public int getYear() throws SQLException {
+    public int getYear()  {
         return this.getModule().getYear();
     }
 
     /**
-     *
      * @return The term attribute of the module for this record
      * @throws SQLException : All DB queries have a risk of this occurring
      */
-    public byte getTerm() throws SQLException {
+    public byte getTerm()  {
         return this.getModule().getTerm();
     }
 
@@ -85,7 +80,6 @@ public class StudentRecord extends BaseModel {
     }
 
     /**
-     *
      * @return True if the score if this record is higher than the average for the module
      * @throws SQLException : All DB queries have a risk of this occurring
      */

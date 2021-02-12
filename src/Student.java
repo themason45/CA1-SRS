@@ -1,36 +1,31 @@
-import com.j256.ormlite.dao.ForeignCollection;
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.field.ForeignCollectionField;
-import com.j256.ormlite.table.DatabaseTable;
-
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-@DatabaseTable()
 public class Student extends BaseModel{
-	@DatabaseField()
 	private String name;
-	@DatabaseField()
 	private char gender;
-	@DatabaseField()
 	private double gpa;
-	@ForeignCollectionField()
-	private ForeignCollection<StudentRecord> records;
-	@DatabaseField(foreign = true)
+	private ArrayList<StudentRecord> records;
 	private University university;
 
-	public Student() {}
+	public Student(int pk, String name, char gender, double gpa, University university) {
+	    this.pk = pk;
+	    this.name = name;
+	    this.gender = gender;
+	    this.gpa = gpa;
+	    this.university = university;
+	    this.records = new ArrayList<>();
+    }
 
     /**
      * Calculate the GPA of a student, then write it to the object, and save to the DB.
-     *
-     * @throws SQLException : All DB queries have a risk of this occurring
      */
-	private void calculateGpa() throws SQLException {
+	private void calculateGpa() {
         if (this.records.size() > 0) {
             ArrayList<StudentRecord> finalScores = new ArrayList<>(this.records);
             double sum = 0.0;
@@ -39,7 +34,6 @@ public class Student extends BaseModel{
                 sum = sum + score;
             }
             this.gpa = (sum / this.records.size());
-            this.update();
         }
     }
 
@@ -48,10 +42,8 @@ public class Student extends BaseModel{
      *
      * @param records : ForeignCollection objects of records straight from the Student
      * @return Map in the structure {year: {term: [StudentRecord], ...}, ...}
-     * @throws SQLException : All DB queries have a risk of this occurring
      */
-	private Map<Integer, Map<Byte, ArrayList<StudentRecord>>> getYearMappedTermRecords(ForeignCollection<StudentRecord> records)
-            throws SQLException {
+	private Map<Integer, Map<Byte, ArrayList<StudentRecord>>> getYearMappedTermRecords(ArrayList<StudentRecord> records) {
 
         Map<Integer, ArrayList<StudentRecord>> yearMappedRecords = new HashMap<>();
         Map<Integer, Map<Byte, ArrayList<StudentRecord>>> yearMappedTermRecords = new HashMap<>();
@@ -83,7 +75,7 @@ public class Student extends BaseModel{
      * @return A string that when printed, puts out the transcript in the required format
      * @throws SQLException : All DB queries have a risk of this occurring
      */
-	public String printTranscript() throws SQLException {
+	public String printTranscript() {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 	    PrintStream printStream = new PrintStream(byteArrayOutputStream);
 
@@ -131,7 +123,7 @@ public class Student extends BaseModel{
         this.gpa = gpa;
     }
 
-    public ForeignCollection<StudentRecord> getRecordsReferences() {
+    public ArrayList<StudentRecord> getRecordsReferences() {
         return records;
     }
 
@@ -139,7 +131,7 @@ public class Student extends BaseModel{
         return (StudentRecord[]) this.records.toArray();
     }
 
-    public void setRecordsReference(ForeignCollection<StudentRecord> records) {
+    public void setRecordsReference(ArrayList<StudentRecord> records) {
         this.records = records;
     }
 
@@ -149,5 +141,9 @@ public class Student extends BaseModel{
 
     public void setUniversity(University university) {
         this.university = university;
+    }
+
+    public void addRecord(StudentRecord studentRecord) {
+        this.records.add(studentRecord);
     }
 }

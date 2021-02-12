@@ -1,24 +1,20 @@
-import com.j256.ormlite.dao.ForeignCollection;
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.field.ForeignCollectionField;
-import com.j256.ormlite.table.DatabaseTable;
-
 import java.sql.SQLException;
+import java.util.ArrayList;
 
-@DatabaseTable()
 public class Module extends BaseModel {
-    @DatabaseField()
     private int year;
-    @DatabaseField()
     private byte term;
-    @DatabaseField(foreign = true)
     private ModuleDescriptor descriptor;
-    @ForeignCollectionField()
-    private ForeignCollection<StudentRecord> records;
-    @DatabaseField(foreign = true)
+    private ArrayList<StudentRecord> records;
     private University university;
 
-    public Module() {
+    public Module(int pk, int year, byte term, ModuleDescriptor descriptor, University university) {
+        this.pk = pk;
+        this.year = year;
+        this.term = term;
+        this.descriptor = descriptor;
+        this.university = university;
+        this.records = new ArrayList<>();
     }
 
     /**
@@ -39,14 +35,7 @@ public class Module extends BaseModel {
      * @return The average final grade for each student on the module
      */
     public double getFinalAverageGrade() {
-        Double sum = this.records.stream().map(studentRecord -> {
-            try {
-                return studentRecord.getFinalScore();
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
-            return 0.0;
-        }).reduce(0.0, Double::sum);
+        Double sum = this.records.stream().map(StudentRecord::getFinalScore).reduce(0.0, Double::sum);
 
         return (sum / this.records.size());
     }
@@ -55,8 +44,8 @@ public class Module extends BaseModel {
      * @return The ModuleDescriptor object with all fields filled out
      * @throws SQLException : All DB queries have a risk of this occurring
      */
-    public ModuleDescriptor getDescriptor() throws SQLException {
-        return (ModuleDescriptor) this.descriptor.getDao().queryForId(String.valueOf(this.descriptor.pk));
+    public ModuleDescriptor getDescriptor() {
+        return this.descriptor;
     }
 
     public void setYear(int year) {
@@ -71,7 +60,7 @@ public class Module extends BaseModel {
         this.descriptor = descriptor;
     }
 
-    public ForeignCollection<StudentRecord> getRecordsReferences() {
+    public ArrayList<StudentRecord> getRecordsReferences() {
         return records;
     }
 
@@ -79,7 +68,7 @@ public class Module extends BaseModel {
         return (StudentRecord[]) this.records.toArray();
     }
 
-    public void setRecordsReferences(ForeignCollection<StudentRecord> records) {
+    public void setRecordsReferences(ArrayList<StudentRecord> records) {
         this.records = records;
     }
 

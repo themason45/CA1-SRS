@@ -1,43 +1,17 @@
-import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.dao.DaoManager;
-import com.j256.ormlite.dao.ForeignCollection;
-import com.j256.ormlite.field.ForeignCollectionField;
-import com.j256.ormlite.jdbc.JdbcConnectionSource;
-import com.j256.ormlite.logger.LocalLog;
-import com.j256.ormlite.support.ConnectionSource;
-import com.j256.ormlite.table.DatabaseTable;
-import com.j256.ormlite.table.TableUtils;
-
-import java.io.File;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-@DatabaseTable(tableName = "university")
 public class University extends BaseModel {
-    @ForeignCollectionField(eager = false, maxEagerLevel = 1)
-    private ForeignCollection<ModuleDescriptor> moduleDescriptors;
-    @ForeignCollectionField(eager = false, maxEagerLevel = 1)
-    private ForeignCollection<Student> students;
-    @ForeignCollectionField(eager = false, maxEagerLevel = 1)
-    private ForeignCollection<Module> modules;
+    private ModuleDescriptor[] moduleDescriptors;
+    private Student[] students;
+    private Module[] modules;
 
     public University() {
-    }
-
-    /**
-     * Initialize the database tables, this only needs to be used once, the database should be bundled in with this
-     * project. The reason I used a DB was for speed, and for further expansion down the line if I need it.
-     */
-    @SuppressWarnings("unused")
-    private static void createTables(ConnectionSource connectionSource) throws SQLException {
-        TableUtils.createTableIfNotExists(connectionSource, University.class);
-        TableUtils.createTableIfNotExists(connectionSource, StudentRecord.class);
-        TableUtils.createTableIfNotExists(connectionSource, Student.class);
-        TableUtils.createTableIfNotExists(connectionSource, ModuleDescriptor.class);
-        TableUtils.createTableIfNotExists(connectionSource, Module.class);
+        this.moduleDescriptors = new ModuleDescriptor[]{};
+        this.students = new Student[]{};
+        this.modules = new Module[]{};
     }
 
     /**
@@ -45,17 +19,14 @@ public class University extends BaseModel {
      */
     @SuppressWarnings("unused")
     public int getTotalNumberStudents() {
-        return students.size();
+        return students.length;
     }
 
     /**
      * @return The student with the highest GPA.
      */
     public Student getBestStudent() {
-//        for (Student student : students) {
-//            System.out.println(student.getName());
-//        }
-        Optional<Student> bestStudent = this.students.stream().max((o1, o2) -> {
+        Optional<Student> bestStudent = Arrays.stream(this.getStudents()).max((o1, o2) -> {
             try {
 
                 return (o1.getGpa() > o2.getGpa()) ? 1 : 0;
@@ -72,21 +43,84 @@ public class University extends BaseModel {
      */
     @SuppressWarnings("unused")
     public Module getBestModule() {
-        Optional<Module> bestStudent = this.modules.stream().max((o1, o2) -> (o1.getFinalAverageGrade() > o2.getFinalAverageGrade()) ? 1 : 0);
+        Optional<Module> bestStudent = Arrays.stream(this.modules).max((o1, o2) -> (o1.getFinalAverageGrade() > o2.getFinalAverageGrade()) ? 1 : 0);
         return bestStudent.orElse(null);
     }
 
-    public static void main(String[] args) throws SQLException {
-        System.setProperty(LocalLog.LOCAL_LOG_LEVEL_PROPERTY, "ERROR");
+    public String[][] csvParse(File file) throws FileNotFoundException {
+        Scanner scanner = new Scanner(file);
+        String[][] output = new String[][]{};
 
-//        ConnectionSource connectionSource = new JdbcConnectionSource("jdbc:postgresql://rogue.db.elephantsql.com:5432/gtlwzejo?user=gtlwzejo&password=eXQXX50vi9wEh7EtmdD1WeFu6nhBBfQw");
-        final File f = new File(University.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-        String dbPath = String.format("jdbc:sqlite:%s/db.sqlite", f.getAbsolutePath());
-        ConnectionSource connectionSource = new JdbcConnectionSource(dbPath);
-        // University.createTables(connectionSource); // Only used once, to create all the tables.
+        scanner.nextLine();  // Skip header
+        while (scanner.hasNext()) {
+            String line = scanner.nextLine();
+            String[][] newArr = Arrays.copyOf(output, output.length + 1);
+            newArr[output.length] = (line.split(","));
+            output = newArr;
+        }
+        scanner.close();
+        return output;
+    }
 
-        Dao<University, String> universityDao = DaoManager.createDao(connectionSource, University.class);
-        University baseUni = universityDao.queryForId("1");
+    public void populate() throws IOException, ClassNotFoundException {
+        // Load module descriptors
+        File md_file = new File("/Users/mason/dev/IDEAProjects/CA1-SRS/csv/main_moduledescriptor.csv");
+        for (String[] row : this.csvParse(md_file)) {
+            ArrayList<Double> continuousAssignmentWeights = new ArrayList<>();
+            for (String s : Support.parseSublist(row[2])) {
+                continuousAssignmentWeights.add(Double.valueOf(s));
+            }
+
+            ModuleDescriptor[] newArr = Arrays.copyOf(this.moduleDescriptors, this.moduleDescriptors.length + 1);
+            newArr[this.moduleDescriptors.length] = new ModuleDescriptor(Integer.parseInt(row[4]), row[0], row[1],
+                    continuousAssignmentWeights, this);
+            this.moduleDescriptors = newArr;
+        }
+
+        File s_file = new File("/Users/mason/dev/IDEAProjects/CA1-SRS/csv/main_student.csv");
+        for (String[] row : this.csvParse(s_file)) {
+            Student[] newArr = Arrays.copyOf(this.students, this.students.length + 1);
+            newArr[this.students.length] = new Student(Integer.parseInt(row[4]), row[0], row[1].charAt(0),
+                    Double.parseDouble(row[2]), this);
+            this.students = newArr;
+        }
+
+        File m_file = new File("/Users/mason/dev/IDEAProjects/CA1-SRS/csv/main_module.csv");
+        for (String[] row : this.csvParse(m_file)) {
+            Support<ModuleDescriptor> moduleDescriptorSupport = new Support<>();
+            ModuleDescriptor md = moduleDescriptorSupport.getObjectByPk(this.moduleDescriptors, Integer.parseInt(row[2]));
+
+            Module[] newArr = Arrays.copyOf(this.modules, this.modules.length + 1);
+            newArr[this.modules.length] = new Module(Integer.parseInt(row[4]), Integer.parseInt(row[0]),
+                    Byte.parseByte(row[1]), md, this);
+            this.modules = newArr;
+        }
+
+        File sr_file = new File("/Users/mason/dev/IDEAProjects/CA1-SRS/csv/main_student_record.csv");
+        for (String[] row : this.csvParse(sr_file)) {
+            Support<Student> studentSupport = new Support<>();
+            Student student = studentSupport.getObjectByPk(this.students, Integer.parseInt(row[0]));
+
+            Support<Module> moduleSupport = new Support<>();
+            Module module = moduleSupport.getObjectByPk(this.modules, Integer.parseInt(row[1]));
+
+            StudentRecord studentRecord = new StudentRecord(Integer.parseInt(row[4]),
+                    student, module, Support.parseSublistAsDoubles(row[2]), Double.parseDouble(row[3]));
+
+            student.addRecord(studentRecord);
+            studentSupport.updateArr(this.students, student);
+
+            module.addRecord(studentRecord);
+            moduleSupport.updateArr(this.modules, module);
+
+        }
+    }
+
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
+        // System.setProperty(LocalLog.LOCAL_LOG_LEVEL_PROPERTY, "ERROR");
+
+        University baseUni = new University();
+        baseUni.populate();
 
         // Do all the printing malarkey
         System.out.printf("The UoK has %d students.\n", baseUni.getTotalNumberStudents());
@@ -100,14 +134,29 @@ public class University extends BaseModel {
 //                throwables.printStackTrace();
 //            }
 //        });
-        connectionSource.closeQuietly();
     }
 
-    public ForeignCollection<Student> getStudents() {
+    public Student[] getStudents() {
         return students;
     }
 
-    public ForeignCollection<Module> getModules() {
+    public Module[] getModules() {
         return modules;
+    }
+
+    public ModuleDescriptor[] getModuleDescriptors() {
+        return moduleDescriptors;
+    }
+
+    public void setModuleDescriptors(ModuleDescriptor[] moduleDescriptors) {
+        this.moduleDescriptors = moduleDescriptors;
+    }
+
+    public void setStudents(Student[] students) {
+        this.students = students;
+    }
+
+    public void setModules(Module[] modules) {
+        this.modules = modules;
     }
 }

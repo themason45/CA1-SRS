@@ -1,7 +1,7 @@
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.misc.BaseDaoEnabled;
-
-public class BaseModel extends BaseDaoEnabled<BaseModel, String> {
-    @DatabaseField(generatedId = true)
+public class BaseModel {
     public int pk;
+
+    public int getPk() {
+        return pk;
+    }
 }

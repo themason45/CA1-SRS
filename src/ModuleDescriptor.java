@@ -1,21 +1,18 @@
-import com.j256.ormlite.field.DataType;
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;
-
 import java.util.ArrayList;
 
-@DatabaseTable()
 public class ModuleDescriptor extends BaseModel {
-	@DatabaseField(unique = true)
 	private String code;
-	@DatabaseField()
 	private String name;
-	@DatabaseField(dataType = DataType.SERIALIZABLE, columnName = "continuousassignmentweights")
 	private ArrayList<Double> continuousAssignmentWeights;
-	@DatabaseField(foreign = true)
 	private University university;
 
-	public ModuleDescriptor() {}
+	public ModuleDescriptor(int pk, String code, String name, ArrayList<Double> continuousAssignmentWeights, University university) {
+		this.pk = pk;
+		this.code = code;
+		this.name = name;
+		this.continuousAssignmentWeights = continuousAssignmentWeights;
+		this.university = university;
+	}
 
 	public String getName() {
 		return this.name;
