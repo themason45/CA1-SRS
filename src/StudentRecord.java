@@ -17,6 +17,7 @@ public class StudentRecord extends BaseModel {
     }
 
     /**
+     * Calculates the final score for the Student Record, which is then stored in the instance
      */
     public void calculateFinalScore() {
         ArrayList<Double> weightedMarks = new ArrayList<>();
@@ -38,7 +39,6 @@ public class StudentRecord extends BaseModel {
 
     /**
      * @return A Module object with all necessary fields filled out
-     * @throws SQLException : All DB queries have a risk of this occurring
      */
     public Module getModule() {
         return this.module;
@@ -56,7 +56,6 @@ public class StudentRecord extends BaseModel {
 
     /**
      * @return The year attribute of the module for this record
-     * @throws SQLException : All DB queries have a risk of this occurring
      */
     public int getYear()  {
         return this.getModule().getYear();
@@ -64,7 +63,6 @@ public class StudentRecord extends BaseModel {
 
     /**
      * @return The term attribute of the module for this record
-     * @throws SQLException : All DB queries have a risk of this occurring
      */
     public byte getTerm()  {
         return this.getModule().getTerm();
@@ -81,9 +79,9 @@ public class StudentRecord extends BaseModel {
 
     /**
      * @return True if the score if this record is higher than the average for the module
-     * @throws SQLException : All DB queries have a risk of this occurring
      */
-    private Boolean isAboveAverage() throws SQLException {
+    @SuppressWarnings("unused")
+    private Boolean isAboveAverage() {
         return (this.finalScore > this.getModule().getFinalAverageGrade());
     }
 
@@ -99,14 +97,17 @@ public class StudentRecord extends BaseModel {
         this.module = module;
     }
 
+    @SuppressWarnings("unused")
     public ArrayList<Double> getMarks() {
         return marks;
     }
 
+    @SuppressWarnings("unused")
     public void setMarks(Double[] marks) {
         this.marks = (ArrayList<Double>) Arrays.asList(marks);
     }
 
+    @SuppressWarnings("unused")
     public void setFinalScore(double finalScore) {
         this.finalScore = finalScore;
     }

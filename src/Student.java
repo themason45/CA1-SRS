@@ -2,10 +2,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings("unused")
 public class Student extends BaseModel{
 	private String name;
 	private char gender;
@@ -14,6 +14,9 @@ public class Student extends BaseModel{
 	private University university;
 
 	public Student(int pk, String name, char gender, double gpa, University university) {
+        if (name == null) {
+            throw new NullPointerException("Name, or ID cannot be null");
+        }
 	    this.pk = pk;
 	    this.name = name;
 	    this.gender = gender;
@@ -73,14 +76,13 @@ public class Student extends BaseModel{
      * This uses a PrintStream in order to be able to write to the string as if it were printing as normal
      *
      * @return A string that when printed, puts out the transcript in the required format
-     * @throws SQLException : All DB queries have a risk of this occurring
      */
 	public String printTranscript() {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 	    PrintStream printStream = new PrintStream(byteArrayOutputStream);
 
 	    this.calculateGpa();
-        printStream.printf("\nID: %d\nName: %s\nGPA: %s\n", this.pk, this.name, Math.round(this.gpa));
+        printStream.printf("University of Knowledge - Official Transcript \n\n\nID: %d\nName: %s\nGPA: %s\n\n", this.pk, this.name, Math.round(this.gpa));
 
         Map<Integer, Map<Byte, ArrayList<StudentRecord>>> yearMappedTermRecords = this.getYearMappedTermRecords(this.records);
         for (Map<Byte, ArrayList<StudentRecord>> yearRecords: yearMappedTermRecords.values()) {
