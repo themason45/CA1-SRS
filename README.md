@@ -1,4 +1,4 @@
-#CA1-SRS
+# CA1-SRS
 
 This project stores the data in CSV files, and loads them when the program starts.
 
